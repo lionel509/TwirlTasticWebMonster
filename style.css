@@ -1,0 +1,52 @@
+body{
+    margin: 0;
+    overflow: hidden;
+    font-family: 'Roboto';
+    background-color: #000000;
+    color: #000000;
+}
+
+#container{
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#controls{
+    background-color: rgb(32, 32, 32);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    position: fixed; /* Ensure the controls are always visible */
+    top: 10px; /* Adjust as needed */
+    left: 10px; /* Adjust as needed */
+    z-index: 1000; /* Ensure it is above other elements */
+}
+
+button:hover{
+    background-color: #333;
+}
+
+footer{
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    text-align: left;    
+    font-size: 12px;
+    color: white;
+}
+
+a{
+    color: white;
+    text-decoration: none;
+}
+
+a.hover{
+    text-decoration: underline
+}
