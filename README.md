@@ -1,4 +1,5 @@
 https://htmlpreview.github.io/?https://github.com/lionel509/TwirlTasticWebMonster/blob/main/index.html
+https://lionel509.github.io/TwirlTasticWebMonster/
 
 **TwirlTastic Web Monster**
 
@@ -16,4 +17,12 @@ particles using dynamic buttons, creating mesmerizing visual effects, including 
 
 **Black Hole Effect:** Holding the Vortex button for 3 seconds creates a black hole, drawing particles toward the center.
 
-**Responsive Design**: Particles adjust dynamically to window resizing, ensuring a seamless experience across devices.
+**Responsive Design:** Particles adjust dynamically to window resizing, ensuring a seamless experience across devices.
+
+**Collision Physics:** Toggle collision physics to enable or disable particle collisions.
+
+**Gravity:** Toggle gravity to enable or disable gravitational effects on particles.
+
+**Firework Effects:** Use the Firework buttons to create stunning firework displays with particles.
+
+**Add/Remove Particles:** Easily add or remove particles with dedicated buttons.

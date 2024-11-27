@@ -9,19 +9,27 @@ let isTwirlActive = false;
 let isMouseDown = false;
 let blackHoleActive = false;
 let twirlTimer = null;
+let collisionEnabled = false;
+let gravityEnabled = false;
 
 // Black hole settings
 const blackHoleRadius = 50; // Smaller black hole
 const vortexEffectRadius = 80; // Subtle glow effect
 
+// Frame rate settings
+let lastFrameTime = performance.now();
+let frameRate = 0;
+
 // Create particles
 function createParticles() {
+    const pipeX = window.innerWidth / 2;
+    const pipeY = window.innerHeight - 25; // Adjust to match pipe position
     particles = Array.from({ length: 150 }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
+        x: pipeX,
+        y: pipeY,
         vx: Math.random() * 4 - 2,
-        vy: Math.random() * 4 - 2,
-        angle: Math.random() * Math.PI * 2, // Angle for spinning
+        vy: Math.random() * -4 - 2, // Particles move upwards
+        angle: Math.random() * Math.PI * 2,
         radius: Math.random() * 5 + 3,
         color: '#ffffff',
     }));
@@ -29,15 +37,25 @@ function createParticles() {
 
 // Update particles
 function updateParticles() {
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; // Semi-transparent fill for trails
+    const now = performance.now();
+    const delta = now - lastFrameTime;
+    frameRate = Math.round(1000 / delta);
+    lastFrameTime = now;
+
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; // Increase opacity for more visible trails
     ctx.fillRect(0, 0, canvas.width, canvas.height); // Draw the rectangle
+
+    // Draw frame rate
+    ctx.fillStyle = 'green';
+    ctx.font = '16px Arial';
+    ctx.fillText(`FPS: ${frameRate}`, canvas.width - 80, 20);
 
     // Draw black hole vortex if active
     if (blackHoleActive) {
         createVortex();
     }
 
-    particles.forEach(p => {
+    particles.forEach((p, index) => {
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
 
@@ -68,6 +86,11 @@ function updateParticles() {
             p.y += p.vy;
         }
 
+        // Apply gravity
+        if (gravityEnabled) {
+            p.vy += 0.1; // Gravity force
+        }
+
         // Boundary checks
         if (p.x < 0) {
             p.x = 0;
@@ -83,7 +106,35 @@ function updateParticles() {
         }
         if (p.y > canvas.height) {
             p.y = canvas.height;
-            p.vy *= -1;
+            if (!gravityEnabled) {
+                p.vy *= -1; // Reverse vertical velocity to bounce only if gravity is disabled
+            } else {
+                p.vy = 0; // Stop vertical movement due to gravity
+            }
+        }
+
+        // Apply collision physics
+        if (collisionEnabled) {
+            for (let j = index + 1; j < particles.length; j++) {
+                const other = particles[j];
+                const dx = other.x - p.x;
+                const dy = other.y - p.y;
+                const distance = Math.sqrt(dx ** 2 + dy ** 2);
+                const minDist = p.radius + other.radius;
+
+                if (distance < minDist) {
+                    const angle = Math.atan2(dy, dx);
+                    const targetX = p.x + Math.cos(angle) * minDist;
+                    const targetY = p.y + Math.sin(angle) * minDist;
+                    const ax = (targetX - other.x) * 0.05;
+                    const ay = (targetY - other.y) * 0.05;
+
+                    p.vx -= ax;
+                    p.vy -= ay;
+                    other.vx += ax;
+                    other.vy += ay;
+                }
+            }
         }
 
         // Draw particle
@@ -126,12 +177,22 @@ function createVortex() {
 }
 
 // RGB mode functionality
+let rgbEnabled = false;
+
 document.getElementById('rgbButton').addEventListener('click', () => {
-    // Toggle RGB mode
-    particles.forEach(p => {
-        p.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
-    });
-    document.body.style.backgroundColor = '#000000'; // Change to black background
+    rgbEnabled = !rgbEnabled;
+    document.getElementById('rgbButton').classList.toggle('toggled', rgbEnabled);
+    if (rgbEnabled) {
+        particles.forEach(p => {
+            p.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        });
+        document.body.style.backgroundColor = '#000000'; // Change to black background
+    } else {
+        particles.forEach(p => {
+            p.color = '#ffffff';
+        });
+        document.body.style.backgroundColor = '#ffffff'; // Change to white background
+    }
 });
 
 // Twirl button functionality
@@ -162,6 +223,51 @@ document.getElementById('twirlButton').addEventListener('mouseup', () => {
     });
 });
 
+// Function to add multiple particles
+function addParticles(count) {
+    const pipeX = window.innerWidth / 2;
+    const pipeY = window.innerHeight - 25; // Adjust to match pipe position
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: pipeX,
+            y: pipeY,
+            vx: Math.random() * 4 - 2,
+            vy: Math.random() * -4 - 2, // Particles move upwards
+            angle: Math.random() * Math.PI * 2,
+            radius: Math.random() * 5 + 3,
+            color: '#ffffff',
+        });
+    }
+}
+
+// Add button functionality
+document.getElementById('addButton').addEventListener('click', () => addParticles(1));
+document.getElementById('add10Button').addEventListener('click', () => addParticles(10));
+document.getElementById('add100Button').addEventListener('click', () => addParticles(100));
+document.getElementById('add1000Button').addEventListener('click', () => addParticles(1000));
+
+// Remove button functionality
+document.getElementById('removeButton').addEventListener('click', () => {
+    particles.pop();
+});
+
+// Clear button functionality
+document.getElementById('clearButton').addEventListener('click', () => {
+    particles = [];
+});
+
+// Toggle collision physics
+document.getElementById('collisionButton').addEventListener('click', () => {
+    collisionEnabled = !collisionEnabled;
+    document.getElementById('collisionButton').classList.toggle('toggled', collisionEnabled);
+});
+
+// Toggle gravity
+document.getElementById('gravityButton').addEventListener('click', () => {
+    gravityEnabled = !gravityEnabled;
+    document.getElementById('gravityButton').classList.toggle('toggled', gravityEnabled);
+});
+
 // Resize handler
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
@@ -180,6 +286,103 @@ canvas.addEventListener('mousemove', e => {
             p.vy += dy * 0.01;
         }
     });
+});
+
+// Function to collect particles at the bottom
+function collectParticlesAtBottom() {
+    const pipeX = window.innerWidth / 2;
+    const pipeY = window.innerHeight - 25; // Adjust to match pipe position
+    particles.forEach(p => {
+        p.x = pipeX;
+        p.y = pipeY;
+        p.vx = 0;
+        p.vy = 0;
+    });
+}
+
+// Function to shoot particles up with RGB effect
+function shootParticlesUp(allAtOnce) {
+    particles.forEach((p, index) => {
+        p.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        if (allAtOnce) {
+            p.vx = Math.random() * 4 - 2;
+            p.vy = Math.random() * -10 - 5; // Particles move upwards faster
+        } else {
+            setTimeout(() => {
+                p.vx = Math.random() * 4 - 2;
+                p.vy = Math.random() * -10 - 5; // Particles move upwards faster
+            }, index * 100); // Delay each particle
+        }
+    });
+}
+
+// Function to shoot a big particle from the center pipe
+function shootBigParticle() {
+    const pipeX = window.innerWidth / 2;
+    const pipeY = window.innerHeight - 25; // Adjust to match pipe position
+    const bigParticle = {
+        x: pipeX,
+        y: pipeY,
+        vx: 0,
+        vy: -10, // Move upwards
+        radius: 20,
+        color: '#ffffff',
+    };
+    particles.push(bigParticle);
+
+    // Check when the big particle reaches the center of the screen
+    const interval = setInterval(() => {
+        if (bigParticle.y <= window.innerHeight / 2) {
+            clearInterval(interval);
+            explodeBigParticle(bigParticle);
+        }
+    }, 30);
+}
+
+// Function to explode the big particle into smaller particles
+function explodeBigParticle(bigParticle) {
+    const explosionParticles = Array.from({ length: 50 }, () => ({
+        x: bigParticle.x,
+        y: bigParticle.y,
+        vx: Math.random() * 8 - 4,
+        vy: Math.random() * 8 - 4,
+        radius: Math.random() * 5 + 3,
+        color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+    }));
+    particles = particles.filter(p => p !== bigParticle).concat(explosionParticles);
+}
+
+// Function to shoot particles from side barrels
+function shootSideParticles() {
+    const leftPipeX = window.innerWidth * 0.3;
+    const rightPipeX = window.innerWidth * 0.7;
+    const pipeY = window.innerHeight - 15; // Adjust to match pipe position
+
+    const sideParticles = Array.from({ length: 50 }, () => ({
+        x: Math.random() < 0.5 ? leftPipeX : rightPipeX,
+        y: pipeY,
+        vx: Math.random() * 4 - 2,
+        vy: Math.random() * -10 - 5, // Particles move upwards faster
+        radius: Math.random() * 5 + 3,
+        color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+    }));
+
+    particles = particles.concat(sideParticles);
+}
+
+// Firework one at a time button functionality
+document.getElementById('fireworkOneButton').addEventListener('click', () => {
+    collectParticlesAtBottom();
+    shootParticlesUp(false);
+    shootBigParticle();
+});
+
+// Firework all at once button functionality
+document.getElementById('fireworkAllButton').addEventListener('click', () => {
+    collectParticlesAtBottom();
+    shootParticlesUp(true);
+    shootBigParticle();
+    shootSideParticles();
 });
 
 // Initialize particles and start animation
