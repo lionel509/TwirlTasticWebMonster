@@ -26,3 +26,9 @@ particles using dynamic buttons, creating mesmerizing visual effects, including 
 **Firework Effects:** Use the Firework buttons to create stunning firework displays with particles.
 
 **Add/Remove Particles:** Easily add or remove particles with dedicated buttons.
+
+**Sliders** Change the sizes/speed of particles. 
+
+**Nuke** Added nuclear collisions (may crash browser)
+
+

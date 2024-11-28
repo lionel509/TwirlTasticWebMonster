@@ -105,6 +105,34 @@ button.toggled {
     left: 10px;
 }
 
+#attractionButton {
+    top: 370px;
+    left: 10px;
+}
+
+#repulsionButton {
+    top: 410px;
+    left: 10px;
+}
+
+#windButton {
+    top: 450px;
+    left: 10px;
+}
+
+#windDirectionSlider {
+    top: 490px;
+    left: 10px;
+    width: 100px;
+    position: fixed;
+    z-index: 1000;
+}
+
+#groupingButton {
+    top: 530px;
+    left: 10px;
+}
+
 button:hover{
     background-color: #333;
 }

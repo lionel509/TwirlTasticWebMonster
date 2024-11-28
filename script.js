@@ -20,6 +20,15 @@ const vortexEffectRadius = 80; // Subtle glow effect
 let lastFrameTime = performance.now();
 let frameRate = 0;
 
+// Additional settings
+let attractionEnabled = false;
+let repulsionEnabled = false;
+let windEnabled = false;
+let windDirection = 1;
+let groupingEnabled = false;
+let groupCenterX = canvas.width / 2;
+let groupCenterY = canvas.height / 2;
+
 // Create particles
 function createParticles() {
     const pipeX = window.innerWidth / 2;
@@ -58,6 +67,41 @@ function updateParticles() {
     particles.forEach((p, index) => {
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
+
+        // Particle grouping
+        if (groupingEnabled) {
+            const dx = groupCenterX - p.x;
+            const dy = groupCenterY - p.y;
+            p.vx += dx * 0.001;
+            p.vy += dy * 0.001;
+        }
+
+        // Particle attraction
+        if (attractionEnabled) {
+            const dx = centerX - p.x;
+            const dy = centerY - p.y;
+            const distance = Math.sqrt(dx ** 2 + dy ** 2);
+            if (distance > 20) {
+                p.vx += (dx / distance) * 0.05;
+                p.vy += (dy / distance) * 0.05;
+            }
+        }
+
+        // Particle repulsion
+        if (repulsionEnabled) {
+            const dx = centerX - p.x;
+            const dy = centerY - p.y;
+            const distance = Math.sqrt(dx ** 2 + dy ** 2);
+            if (distance < 150) {
+                p.vx -= (dx / distance) * 0.1;
+                p.vy -= (dy / distance) * 0.1;
+            }
+        }
+
+        // Wind effect
+        if (windEnabled) {
+            p.vx += windDirection * 0.02;
+        }
 
         if (isTwirlActive) {
             // Spin particles around the center
@@ -268,6 +312,74 @@ document.getElementById('gravityButton').addEventListener('click', () => {
     document.getElementById('gravityButton').classList.toggle('toggled', gravityEnabled);
 });
 
+// Firework one at a time button functionality
+document.getElementById('fireworkOneButton').addEventListener('click', () => {
+    collectParticlesAtBottom();
+    shootParticlesUp(false);
+    shootBigParticle();
+});
+
+// Firework all at once button functionality
+document.getElementById('fireworkAllButton').addEventListener('click', () => {
+    collectParticlesAtBottom();
+    shootParticlesUp(true);
+    shootBigParticle();
+    shootSideParticles();
+});
+
+// Toggle particle attraction
+function toggleAttraction() {
+    attractionEnabled = !attractionEnabled;
+    document.getElementById('attractionButton').classList.toggle('toggled', attractionEnabled);
+}
+
+document.getElementById('attractionButton').addEventListener('click', toggleAttraction);
+
+// Toggle particle repulsion
+function toggleRepulsion() {
+    repulsionEnabled = !repulsionEnabled;
+    document.getElementById('repulsionButton').classList.toggle('toggled', repulsionEnabled);
+}
+
+document.getElementById('repulsionButton').addEventListener('click', toggleRepulsion);
+
+// Toggle wind effect
+function toggleWind() {
+    windEnabled = !windEnabled;
+    document.getElementById('windButton').classList.toggle('toggled', windEnabled);
+    if (windEnabled) {
+        windDirection = Math.random() < 0.5 ? -1 : 1; // Random initial wind direction
+    }
+}
+
+document.getElementById('windButton').addEventListener('click', toggleWind);
+
+// Wind direction slider
+document.getElementById('windDirectionSlider').addEventListener('input', (e) => {
+    windDirection = parseFloat(e.target.value);
+});
+
+// Toggle particle grouping
+function toggleGrouping() {
+    groupingEnabled = !groupingEnabled;
+    document.getElementById('groupingButton').classList.toggle('toggled', groupingEnabled);
+    if (groupingEnabled) {
+        groupCenterX = canvas.width / 2;
+        groupCenterY = canvas.height / 2;
+    }
+}
+
+document.getElementById('groupingButton').addEventListener('click', toggleGrouping);
+
+// Resize handler
+window.addEventListener('resize', () => {
+    canvas.width = window.innerWidth;
+        p.vx = Math.random() * 20 - 10;
+        p.vy = Math.random() * 20 - 10;
+        p.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+    });
+});
+
 // Resize handler
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
@@ -369,21 +481,6 @@ function shootSideParticles() {
 
     particles = particles.concat(sideParticles);
 }
-
-// Firework one at a time button functionality
-document.getElementById('fireworkOneButton').addEventListener('click', () => {
-    collectParticlesAtBottom();
-    shootParticlesUp(false);
-    shootBigParticle();
-});
-
-// Firework all at once button functionality
-document.getElementById('fireworkAllButton').addEventListener('click', () => {
-    collectParticlesAtBottom();
-    shootParticlesUp(true);
-    shootBigParticle();
-    shootSideParticles();
-});
 
 // Initialize particles and start animation
 createParticles();
