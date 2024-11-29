@@ -374,15 +374,6 @@ document.getElementById('groupingButton').addEventListener('click', toggleGroupi
 // Resize handler
 window.addEventListener('resize', () => {
     canvas.width = window.innerWidth;
-        p.vx = Math.random() * 20 - 10;
-        p.vy = Math.random() * 20 - 10;
-        p.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
-    });
-});
-
-// Resize handler
-window.addEventListener('resize', () => {
-    canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     createParticles();
 });
