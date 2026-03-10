@@ -1,6 +1,3 @@
-https://htmlpreview.github.io/?https://github.com/lionel509/TwirlTasticWebMonster/blob/main/index.html
-https://lionel509.github.io/TwirlTasticWebMonster/
-
 **TwirlTastic Web Monster**
 
 TwirlTastic Web Monster is an interactive and visually engaging web application that features 
@@ -30,5 +27,6 @@ particles using dynamic buttons, creating mesmerizing visual effects, including 
 **Sliders** Change the sizes/speed of particles. 
 
 **Nuke** Added nuclear collisions (may crash browser)
+
 
 
